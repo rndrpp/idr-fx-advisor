@@ -31,12 +31,12 @@ services:
       - ../gcp-key.json:/opt/airflow/gcp-key.json
       - ../dbt:/opt/airflow/dbt
       - ./profiles.yml:/opt/airflow/profiles.yml
-
-
     ports:
       - "8080:8080"
     restart: always
     command: webserver
+    env_file:
+      - .env
 
   scheduler:
     build: .
@@ -57,6 +57,8 @@ services:
       - ./profiles.yml:/opt/airflow/profiles.yml
     restart: always
     command: scheduler
+    env_file:
+      - .env
 
   airflow-init:
     build: .

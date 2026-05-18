@@ -5,6 +5,7 @@ import requests
 from google.cloud import bigquery
 from airflow.operators.bash import BashOperator
 from datetime import date
+import os
 
 with DAG(
     dag_id="idr_fx_pipeline",
@@ -55,7 +56,7 @@ with DAG(
     def send_discord_alert(**context):
         ds = context['ds']
 
-            # Only send alert for today's run
+        # Only send alert for today's run
         if ds != str(date.today()):
             print(f"Skipping alert for historical date {ds}")
             return
@@ -84,7 +85,7 @@ with DAG(
         message += "\n_Based on 30-day Z-Score analysis_"
         
         # Send to Discord
-        webhook_url = "https://discord.com/api/webhooks/1506008510696263873/1kbp-qlmGH-8Q1_jxC85Uy2VeCOzM_s3vW4tRS8eJBp8DQ-C29NrdBYWQ_Oy-0GL21NM"
+        webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
         requests.post(webhook_url, json={"content": message})
 
 
