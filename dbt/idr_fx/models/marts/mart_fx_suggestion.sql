@@ -5,15 +5,15 @@ WITH staging AS (
 with_stats AS (
     SELECT
         *,
-        AVG(rate) OVER (PARTITION BY quote ORDER BY date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) AS avg_30d,
-        STDDEV(rate) OVER (PARTITION BY quote ORDER BY date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) AS std_30d
-    FROM staging
+        CAST(ROUND(AVG(rate) OVER (PARTITION BY quote ORDER BY date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW), 8) AS NUMERIC) AS avg_30d,
+        CAST(ROUND(STDDEV(rate) OVER (PARTITION BY quote ORDER BY date ROWS BETWEEN 29 PRECEDING AND CURRENT ROW), 8) AS NUMERIC) AS std_30d
+        FROM staging
 ),
 
 final AS (
     SELECT
         *,
-        (rate - avg_30d) / NULLIF(std_30d, 0) AS z_score
+        ROUND((rate - avg_30d) / NULLIF(std_30d, 0), 2) AS z_score
     FROM with_stats
 ),
 
