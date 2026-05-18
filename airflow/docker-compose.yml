@@ -15,7 +15,7 @@ services:
     restart: always
 
   webserver:
-    image: apache/airflow:2.9.1
+    build: .
     depends_on:
       postgres:
         condition: service_healthy
@@ -29,13 +29,17 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ../gcp-key.json:/opt/airflow/gcp-key.json
+      - ../dbt:/opt/airflow/dbt
+      - ./profiles.yml:/opt/airflow/profiles.yml
+
+
     ports:
       - "8080:8080"
     restart: always
     command: webserver
 
   scheduler:
-    image: apache/airflow:2.9.1
+    build: .
     depends_on:
       postgres:
         condition: service_healthy
@@ -49,11 +53,13 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ../gcp-key.json:/opt/airflow/gcp-key.json
+      - ../dbt:/opt/airflow/dbt
+      - ./profiles.yml:/opt/airflow/profiles.yml
     restart: always
     command: scheduler
 
   airflow-init:
-    image: apache/airflow:2.9.1
+    build: .
     depends_on:
       postgres:
         condition: service_healthy
