@@ -63,7 +63,8 @@ with DAG(
         
         client = bigquery.Client()
         query = f"""
-            SELECT quote, idr_per_quote, signal, z_score
+            SELECT quote, idr_per_quote, signal, percentile_rank,
+                z_score_30d, z_score_90d, z_score_365d
             FROM `idr-fx-advisor.fx_data.mart_fx_suggestion`
             WHERE date = '{ds}'
             ORDER BY quote
@@ -76,13 +77,24 @@ with DAG(
             return
         
         # Build message
-        message = f"📊 **IDR FX Daily Signal — {ds}**\n\n"
+        message = f"📊 **IDR FX Signal — {ds}**\n\n"
         
         for row in rows:
-            emoji = "🟢" if row.signal == "BUY" else "🔴" if row.signal == "WAIT" else "🟡"
-            message += f"**{row.quote}:** {row.idr_per_quote:,.2f} IDR → {emoji} {row.signal}\n"
-        
-        message += "\n_Based on 30-day Z-Score analysis_"
+            if row.signal == "STRONG BUY":
+                emoji = "🟢🟢"
+            elif row.signal == "BUY":
+                emoji = "🟢"
+            elif row.signal == "STRONG WAIT":
+                emoji = "🔴🔴"
+            elif row.signal == "WAIT":
+                emoji = "🔴"
+            else:
+                emoji = "🟡"
+    
+            percentile_pct = round(row.percentile_rank * 100, 1)
+            message += f"{emoji} **{row.quote}:** {row.idr_per_quote:,.0f} IDR — {row.signal}\n"
+            message += f"   ↳ Percentile: {percentile_pct}% | 30d: `{row.z_score_30d}` | 90d: `{row.z_score_90d}` | 365d: `{row.z_score_365d}`\n\n"
+                
         
         # Send to Discord
         webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
