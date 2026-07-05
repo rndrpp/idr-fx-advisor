@@ -9,7 +9,7 @@ Indonesian saving or investing their IDR to foreign currency
 
 ## Solution
 This pipeline helps Indonesians decide when to exchange IDR to foreign currency 
-by sending a daily Telegram alert with a BUY, NEUTRAL, or WAIT signal.
+by sending a daily Discord alert with a BUY, NEUTRAL, or WAIT signal.
 
 The signal is based on Z-Score — a statistical measure that compares today's 
 rate against the 30-day historical average and standard deviation. This detects 
@@ -32,7 +32,7 @@ Technical approach:
 1. Airflow fetches daily rates from Frankfurter API
 2. Raw data loaded into BigQuery daily_rates table
 3. dbt calculates Z-Score and generates suggestion in mart
-4. Airflow sends suggestion to Telegram
+4. Airflow sends suggestion to Discord
 
 ## Tool Choices
 - **Airflow** — Schedule and monitor the jobs daily
@@ -40,7 +40,7 @@ Technical approach:
 - **BigQuery** — Load and store the data
 - **Terraform** — Reproducible infrastructure
 - **Docker** — Virtual environment for our workflow
-- **Telegram** — Simple API implementation
+- **Discord** — Simple API implementation
 
 ## Data Flow
-Frankfurter API -> Airflow -> BigQuery -> dbt -> mart_exchange_suggestion -> Telegram alert
+Frankfurter API -> Airflow -> BigQuery -> dbt -> mart_exchange_suggestion -> Discord alert
