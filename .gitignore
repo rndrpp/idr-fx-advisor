@@ -1,2 +1,8 @@
 gcp-key.json
 .env
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+airflow/profiles.yml
+airflow/.env
+dbt/logs/
